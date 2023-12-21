@@ -1,0 +1,18 @@
+spec:
+  container:
+  - name: whisper-service-container
+    image: my-snowflake-url.registry.snowflakecomputing.com/mgorkow/test/test_image_repository/whisper_app:latest
+    env:
+      ASR_MODEL: base
+      ASR_ENGINE: openai_whisper
+    volumeMounts:
+      - name: whisper-model-stage
+        mountPath: /whisper_models
+  endpoint:
+  - name: api
+    port: 9000
+  volume:
+  - name: whisper-model-stage
+    source: "@whisper_models"
+    uid: 1000
+    gid: 1000
