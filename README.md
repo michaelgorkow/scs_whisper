@@ -3,7 +3,7 @@ This repository explains how to run OpenAI's [Whisper](https://github.com/openai
 Afterwards you can easily transcribe any audio file into text and detect its language.
 
 ## Requirements
-* Account with Snowpark Container Services enabled
+* Account with Snowpark Container Services
 * Docker installed
 
 ## Setup Instructions
@@ -20,7 +20,7 @@ CREATE STAGE IF NOT EXISTS AUDIO_FILES ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE') DIR
 CREATE COMPUTE POOL MY_GPU_POOL
   MIN_NODES = 1
   MAX_NODES = 1
-  INSTANCE_FAMILY = GPU_3;
+  INSTANCE_FAMILY = GPU_NV_S;
 ```
 
 ### 2. Clone this repository
@@ -31,7 +31,7 @@ git clone https://github.com/michaelgorkow/scs_whisper.git
 ### 3. Build & Upload the container
 ```cmd
 cd scs_whisper
-docker build -t <ORGNAME>-<ACCTNAME>.registry.snowflakecomputing.com/<DATABASE>/<SCHEMA>/TEST_IMAGE_REPOSITORY/whisper_app:latest .
+docker build --platform linux/amd64 -t <ORGNAME>-<ACCTNAME>.registry.snowflakecomputing.com/<DATABASE>/<SCHEMA>/TEST_IMAGE_REPOSITORY/whisper_app:latest .
 docker push <ORGNAME>-<ACCTNAME>.registry.snowflakecomputing.com/<DATABASE>/<SCHEMA>/TEST_IMAGE_REPOSITORY/whisper_app:latest
 ```
 

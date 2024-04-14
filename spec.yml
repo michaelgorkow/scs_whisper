@@ -1,7 +1,12 @@
 spec:
   container:
   - name: whisper-service-container
-    image: my-snowflake-url.registry.snowflakecomputing.com/mgorkow/test/test_image_repository/whisper_app:latest
+    image: /<database>/<schema>/image_repository/whisper_app:latest
+    resources:
+      requests:
+        nvidia.com/gpu: 1
+      limits:
+        nvidia.com/gpu: 1
     env:
       ASR_MODEL: base
       ASR_ENGINE: openai_whisper
