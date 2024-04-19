@@ -5,6 +5,7 @@ Afterwards you can easily transcribe any audio file into text and detect its lan
 ## Requirements
 * Account with Snowpark Container Services
 * Docker installed
+* Use a role <u>other than ACCOUNTADMIN</u> as described here: [Docs](https://docs.snowflake.com/en/developer-guide/snowpark-container-services/additional-considerations-services-jobs#network-egress)
 
 ## Setup Instructions
 ### 1. Create image repository, stages and compute pool 
@@ -40,7 +41,20 @@ Use your favourite way of uploading files and upload
 * the `spec.yml` to stage `WHISPER_APP`
 * the audio files to stage `AUDIO_FILES`
 
-### 5. Create the Whisper Service
+### 5 Create External Access Integration
+```sql
+-- Create External Access Integration
+CREATE OR REPLACE NETWORK RULE CONTAINER_NETWORK_RULE
+    MODE = EGRESS
+    TYPE = HOST_PORT
+    VALUE_LIST = ('0.0.0.0:443','0.0.0.0:80');
+
+CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION CONTAINER_ACCESS_INTEGRATION
+    ALLOWED_NETWORK_RULES = (CONTAINER_NETWORK_RULE)
+    ENABLED = true;
+```
+
+### 6. Create the Whisper Service
 ```sql
 -- Create Service
 CREATE SERVICE WHISPER_APP
@@ -48,13 +62,14 @@ CREATE SERVICE WHISPER_APP
   FROM @WHISPER_APP
   SPEC='spec.yml'
   MIN_INSTANCES=1
-  MAX_INSTANCES=1;
+  MAX_INSTANCES=1
+  EXTERNAL_ACCESS_INTEGRATIONS = (CONTAINER_ACCESS_INTEGRATION);;
 
 -- Verify Service is running
 SELECT SYSTEM$GET_SERVICE_STATUS('WHISPER_APP');
 ```
 
-### 6. Create the service functions for language detection and transcription
+### 7. Create the service functions for language detection and transcription
 ```sql
 -- Function to detect language from audio file
 CREATE OR REPLACE FUNCTION DETECT_LANGUAGE(AUDIO_FILE TEXT, ENCODE BOOLEAN)
@@ -71,7 +86,7 @@ ENDPOINT=API
 AS '/asr';
 ```
 
-### 7. Call the service functions using files from a Directory Table
+### 8. Call the service functions using files from a Directory Table
 ```sql
 -- Run Whisper on a files in a stage
 SELECT RELATIVE_PATH, 
@@ -87,7 +102,7 @@ SELECT RELATIVE_PATH,
 FROM DIRECTORY('@<DATABASE>.<SCHEMA>.AUDIO_FILES');
 ```
 
-### 8. Clean your environment
+### 9. Clean your environment
 ```sql
 -- Clean Up
 DROP SERVICE WHISPER_APP;
