@@ -41,7 +41,7 @@ Use your favourite way of uploading files and upload
 * the `spec.yml` to stage `WHISPER_APP`
 * the audio files to stage `AUDIO_FILES`
 
-### 5 Create External Access Integration
+### 5. Create External Access Integration
 ```sql
 -- Create External Access Integration
 CREATE OR REPLACE NETWORK RULE CONTAINER_NETWORK_RULE
